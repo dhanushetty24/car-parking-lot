@@ -9,7 +9,9 @@ install node, simply
 ## Usage
 
 `node app.js`
+
 #APIs
+
 Method: POST
 Endpoint: /api/car/:carNumber/park
 Response: { slotnumber, carNumber, status}
