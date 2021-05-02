@@ -32,7 +32,8 @@ exports.park = async (req, res) => {
       fs.writeFileSync('parkingData.json', JSON.stringify(parkingData), 'utf8');
       return res.status(200).send({
         status: 'Car Parked.',
-        slotNumber: parkingData[availableSlot]._id
+        slotNumber: parkingData[availableSlot]._id,
+        carNumber
       });
     }
 
@@ -48,7 +49,8 @@ exports.park = async (req, res) => {
 
       return res.status(200).send({
         status: 'Car Parked.',
-        slotNumber: createSlot._id
+        slotNumber: createSlot._id,
+        carNumber
       });
     }
 
@@ -91,7 +93,7 @@ exports.unPark = async (req, res) => {
     parkingData[index].carNumber = '';
     fs.writeFileSync('parkingData.json', JSON.stringify(parkingData), 'utf8');
     return res.status(200).send({
-      status: `Car number ${carNumber} Unparked successfully. Parking available at ${slotNumber}.`
+      message: `Car number ${carNumber} Unparked successfully. Parking available at ${slotNumber}.`
     });
   } catch (error) {
     console.error(error);
