@@ -18,20 +18,6 @@ exports.park = async (req, res) => {
       carNumber
     } = req.params;
 
-    const schema = Joi.object().keys({
-      carNumber: Joi.string().required().error(new Error("Invalid Car Number.")),
-    });
-
-    const result = schema.validate({
-      carNumber
-    });
-
-    if (result.error) {
-      return res.status(400).send({
-        error: result.error.message
-      });
-    }
-
     //check if the car number provided is duplicate i.e a car with that car number is already parked. 
     const checkDuplicateCarNumber = parkingData.find(ele => ele.carNumber === carNumber);
     if (checkIfDataExists(checkDuplicateCarNumber)) {
@@ -40,10 +26,9 @@ exports.park = async (req, res) => {
       });
     }
     //check for vacant parking slot
-    const availableSlot = parkingData.find(ele => !ele.carNumber);
-    if (availableSlot) {
-      const index = parkingData.findIndex(ele => ele._id === availableSlot._id)
-      parkingData[index].carNumber = carNumber;
+    const availableSlot = parkingData.findIndex(ele => !ele.carNumber);
+    if (availableSlot !== -1) {
+      parkingData[availableSlot].carNumber = carNumber;
       fs.writeFileSync('parkingData.json', JSON.stringify(parkingData), 'utf8');
       return res.status(200).send({
         status: 'Car Parked.',
@@ -69,6 +54,74 @@ exports.park = async (req, res) => {
 
     return res.status(400).send({
       error: 'Parking lot is full.'
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      error: 'Internal Server Error.'
+    });
+  }
+};
+
+/**
+ * @name unPark
+ * @description Get the slot number in params from which the car is to be unparked 
+ */
+exports.unPark = async (req, res) => {
+  try {
+    const {
+      slotNumber
+    } = req.params;
+
+    //check if slotId is valid and is occupied
+    const checkSlotNumber = parkingData.find(ele => ele._id === slotNumber);
+    if (!checkIfDataExists(checkSlotNumber)) {
+      return res.status(404).send({
+        error: 'Invalid Slot number provided.'
+      });
+    }
+    if (!checkIfDataExists(checkSlotNumber.carNumber)) {
+      return res.status(400).send({
+        error: 'Slot is vacant.'
+      });
+    }
+
+    const carNumber = checkSlotNumber.carNumber;
+    const index = parkingData.findIndex(ele => ele._id === slotNumber);
+    parkingData[index].carNumber = '';
+    fs.writeFileSync('parkingData.json', JSON.stringify(parkingData), 'utf8');
+    return res.status(200).send({
+      status: `Car number ${carNumber} Unparked successfully. Parking available at ${slotNumber}.`
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      error: 'Internal Server Error.'
+    });
+  }
+};
+
+/**
+ * @name getParkingDetails
+ * @description Get the slot/car number in params and return both the car number and slot number for the input
+ */
+exports.getParkingDetails = async (req, res) => {
+  try {
+    const {
+      searchKey
+    } = req.params;
+
+    //check if searchKey is valid
+    const checkSearchKey = parkingData.find(ele => ele._id === searchKey || ele.carNumber === searchKey);
+    if (!checkIfDataExists(checkSearchKey)) {
+      return res.status(404).send({
+        error: 'Invalid search key provided.'
+      });
+    }
+
+    return res.status(200).send({
+      slotNumber: checkSearchKey._id,
+      carNumber: checkSearchKey.carNumber || 'Parking Available.'
     });
   } catch (error) {
     console.error(error);

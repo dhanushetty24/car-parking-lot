@@ -26,9 +26,11 @@ app.use((req, res, next) => {
 /**
  * Essential Express middlewares
  */
- app.use(express.urlencoded({ extended: false }))
- app.use(express.json())
- 
+app.use(express.urlencoded({
+  extended: false
+}))
+app.use(express.json())
+
 //Handles routes in the app
 app.use('/api', routes);
 
@@ -39,16 +41,10 @@ app.use('/', (req, res) => {
   });
 });
 
-// const fs = require('fs')
-// const parkingData = fs.readFileSync('./src/parkingData.json', 'utf8');
-
-// console.log("your log => ~ file: app.js ~ line 39 ~ parkingData", parkingData)
-
-
 /**
  *  @Create a HTTP service. 
  */
- var httpServer = http.createServer(app);
- httpServer.listen(app.get('HTTPport'), () => {
-   console.log(`Find the HTTP server at: http://localhost:${app.get('HTTPport')}/`); // eslint-disable-line no-console
- });  
+var httpServer = http.createServer(app);
+httpServer.listen(app.get('HTTPport'), () => {
+  console.log(`Find the HTTP server at: http://localhost:${app.get('HTTPport')}/`); // eslint-disable-line no-console
+});
